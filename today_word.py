@@ -8,7 +8,7 @@ import random
 
 def main():
     """
-    Read file a print one word
+    Read word file and print one random word
     """
     words_file = open('/Users/Vincent/Dropbox/wiki/Voc.md', 'r')
 
