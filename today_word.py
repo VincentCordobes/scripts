@@ -13,7 +13,7 @@ def main():
     words_file = open('/Users/Vincent/Dropbox/wiki/Voc.md', 'r')
 
     lines = words_file.read().splitlines()
-    regex = re.compile(r'^[^#\s].*')
+    regex = re.compile(r'^[^#\s%].*')
     filered_lines = list(filter(regex.search, lines))
 
     print(random.choice(filered_lines))
