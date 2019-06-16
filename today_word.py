@@ -10,15 +10,14 @@ def main():
     """
     Read word file and print one random word
     """
-    words_file = open('/Users/Vincent/Dropbox/wiki/Voc.md', 'r')
+    with open("/Users/Vincent/Dropbox/wiki/Voc.md", "r") as words_file:
+        lines = words_file.read().splitlines()
 
-    lines = words_file.read().splitlines()
-    regex = re.compile(r'^[^#\s%].*')
-    filered_lines = list(filter(regex.search, lines))
+    regex = re.compile(r"^[^#\s%].*")
+    filtered_lines = list(filter(regex.search, lines))
 
-    print(random.choice(filered_lines))
-    words_file.close()
+    print(random.choice(filtered_lines))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
