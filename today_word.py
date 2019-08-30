@@ -4,6 +4,7 @@ Select a word from my french word list
 """
 import re
 import random
+from datetime import date
 
 
 def main():
@@ -15,8 +16,11 @@ def main():
 
     regex = re.compile(r"^[^#\s%].*")
     filtered_lines = list(filter(regex.search, lines))
+    today = date.today()
+    seed = today.year + today.month + today.day
+    random.seed(seed)
 
-    print(random.choice(filtered_lines))
+    print(random.choice(filtered_lines).capitalize())
 
 
 if __name__ == "__main__":
