@@ -9,7 +9,7 @@ else
 
   datetime=`date '+%Y-%m-%d %H:%M'`
 
-  if $cmd &>/dev/null ; then 
+  if $cmd >/dev/null 2>>$logfile ; then 
     echo  "$datetime $cmd OK" >> $logfile
   else 
     echo  "$datetime $cmd KO" >> $logfile
