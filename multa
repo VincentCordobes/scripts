@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+const readline = require("readline")
+const fs = require("fs")
+const path = require("path")
+
+const homedir = require("os").homedir()
+const dbpath = path.join(homedir, ".multa")
+
+let db = fs.existsSync(dbpath)
+  ? JSON.parse(fs.readFileSync(dbpath, "utf8"))
+  : {bad: []}
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+})
+
+const defaultDict = (d = {}) =>
+  new Proxy(d, {
+    get: (obj, prop) => (prop in obj ? obj[prop] : 0),
+  })
+
+function randomInt(min = 2, max = 9) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+function next(table) {
+  return [table || randomInt(), randomInt()]
+}
+
+function processBad() {
+  if (!db.bad.length) {
+    return null
+  }
+
+  const [next, ...others] = db.bad
+  db.bad = [...others, next]
+
+  if (Math.random > 0.5) {
+    return next
+  } else {
+    const [x, y] = next
+    return [y, x]
+  }
+}
+
+function ask(query) {
+  return new Promise((resolve, reject) => {
+    rl.on("SIGINT", reject)
+    rl.question(query, (result) => {
+      rl.removeAllListeners()
+      resolve(result)
+    })
+  })
+}
+
+async function prompt(
+  table,
+  acc = {
+    badOcc: defaultDict(),
+    okCount: 0,
+    total: 0,
+  }
+) {
+  const [x, y] = db.bad.length && acc.total % 2 ? processBad() : next(table)
+
+  const expected = (table || x) * y
+
+  const label = `${x} ✕ ${y}`
+
+  try {
+    const result = await ask(label + " = ")
+
+    acc.total++
+    readline.cursorTo(process.stdout, 0, 1)
+    readline.clearLine(process.stdout, 0)
+
+    if (Number(result) === expected) {
+      acc.okCount++
+      process.stdout.write(label + " = " + result + " OK\n")
+    } else {
+      acc.badOcc[x]++
+      acc.badOcc[y]++
+      db.bad.push([x, y])
+      process.stdout.write(label + " = " + expected + " KO!!!!!\n")
+    }
+
+    return prompt(table, acc)
+  } catch (e) {
+    return acc
+  }
+}
+
+function isValidTable(n) {
+  return n > 1 && n < 10
+}
+
+function getTopWorst(m) {
+  return Object.entries(m)
+    .map(([x, occ]) => [Number(x), occ])
+    .sort((a, b) => b[1] - a[1])
+    .map((x) => x[0])
+    .slice(0, 3)
+}
+
+function saveDb(db) {
+  fs.writeFileSync(dbpath, JSON.stringify(db))
+}
+
+function displaySummary({badOcc, total, okCount}) {
+  console.log("\n")
+  console.log("========")
+  console.info(`Score ${okCount}/${total}`)
+
+  if (Object.entries(badOcc).length > 0) {
+    const worst = getTopWorst(badOcc)
+    console.info("Worst tables:", worst.join(", "))
+  }
+}
+
+async function main() {
+  if (process.argv[2] === "clear") {
+    db.bad = []
+    saveDb(db)
+    process.exit(0)
+  }
+
+  const table = process.argv[2]
+
+  if (table && (isNaN(table) || !isValidTable(table))) {
+    const usage = "Usage: mult [1-9]"
+    console.error(usage)
+    process.exit(1)
+  }
+
+  const summary = await prompt(table)
+
+  saveDb(db)
+  displaySummary(summary)
+  rl.close()
+}
+
+main()
