@@ -63,6 +63,10 @@ function Strikeout(s)
   return '~' .. s .. '~'
 end
 
+function  BlockQuote(s)
+  return "> " .. s
+end
+
 function Code(s, attr)
   return string.format("`%s`", s)
 end
