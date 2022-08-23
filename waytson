@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -eo pipefail
+
+status=$(/home/vincent/.local/bin/watson status)
+
+sleep 0.2
+
+[[ $status != "No project started." ]] && echo "$status" | awk '{$3="\n"; print $0}' | cut --complement -d' ' -f1
+
+

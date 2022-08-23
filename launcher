@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+kitty @set-colors background=#22272e
+sway-launcher-desktop

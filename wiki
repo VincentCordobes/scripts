@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o pipefail
+
+fe() (
+  IFS=$'\n' files=($(fzf --height ${FZF_TMUX_HEIGHT:-10%} --multi --exit-0))
+  [[ -n "${files[0]}" ]] && ${EDITOR:-nvim} "${files[@]}"
+)
+
+kitty @set-colors background=#22272e
+cd ~/Dropbox/wiki || exit
+fe

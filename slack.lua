@@ -48,6 +48,10 @@ function CodeBlock(s, attr)
 end
 
 function SoftBreak()
+  return ""
+end
+
+function LineBreak()
   return "\n"
 end
 
