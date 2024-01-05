@@ -4,8 +4,10 @@ set -eo pipefail
 
 status=$(/home/vincent/.local/bin/watson status)
 
-sleep 0.2
 
-[[ $status != "No project started." ]] && echo "$status" | awk '{$3="\n"; print $0}' | cut --complement -d' ' -f1
+# Project code started just now (2022.08.29 16:37:33+0200)
+# Project code [prep] started just now (2022.08.29 16:37:33+0200)
+
+[[ $status != "No project started." ]] && echo "$status" | sed -n "s/^Project \(.*\) started \(.*\)$/\1\n\2/p"
 
 
